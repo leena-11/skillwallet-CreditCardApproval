@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Settings — CC Approval System{% endblock %}
+{% block page_title %}Settings{% endblock %}
+
+{% block content %}
+<section class="welcome-banner">
+    <div class="banner-icon">
+        <i class="fa-solid fa-sliders"></i>
+    </div>
+    <div class="banner-text">
+        <h2>System Settings</h2>
+        <p>Configure prediction thresholds, notification preferences, and system behavior.</p>
+    </div>
+</section>
+
+<div class="settings-layout">
+    <!-- General Settings -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fa-solid fa-gear"></i>
+            <h3>General Settings</h3>
+        </div>
+        <div class="card-body">
+            <div class="settings-group">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Application Name</span>
+                        <span class="setting-desc">Display name shown in the browser and UI</span>
+                    </div>
+                    <input type="text" class="setting-input" value="CC Approval System">
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Default Language</span>
+                        <span class="setting-desc">Language used across the interface</span>
+                    </div>
+                    <select class="setting-input">
+                        <option selected>English</option>
+                        <option>Hindi</option>
+                        <option>Tamil</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Timezone</span>
+                        <span class="setting-desc">Timestamps are displayed in this timezone</span>
+                    </div>
+                    <select class="setting-input">
+                        <option selected>Asia/Kolkata (IST)</option>
+                        <option>UTC</option>
+                        <option>America/New_York</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Settings -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fa-solid fa-gears"></i>
+            <h3>Model &amp; Prediction Settings</h3>
+        </div>
+        <div class="card-body">
+            <div class="settings-group">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Approval Threshold</span>
+                        <span class="setting-desc">Minimum probability to classify as Approved (current: 50%)</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <input type="range" id="threshold-slider" min="30" max="80" value="50" style="width:130px;accent-color:var(--secondary-color);">
+                        <span id="threshold-display" style="font-weight:600;min-width:36px;">50%</span>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Auto-Reload Model</span>
+                        <span class="setting-desc">Reload model from disk on each prediction request</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Log Predictions</span>
+                        <span class="setting-desc">Save every prediction result to the database</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Settings -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fa-solid fa-bell"></i>
+            <h3>Notification Settings</h3>
+        </div>
+        <div class="card-body">
+            <div class="settings-group">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Email Alerts on Rejection</span>
+                        <span class="setting-desc">Send an email when an application is rejected</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Daily Summary Report</span>
+                        <span class="setting-desc">Receive a daily digest of prediction activity</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Alert Email</span>
+                        <span class="setting-desc">Send notifications to this address</span>
+                    </div>
+                    <input type="email" class="setting-input" value="admin@ccapproval.in">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Button -->
+    <div style="display:flex;justify-content:flex-end;gap:12px;">
+        <button class="btn btn-secondary">Cancel</button>
+        <button class="btn btn-primary" id="save-settings-btn">
+            <i class="fa-solid fa-floppy-disk"></i> Save Changes
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const slider = document.getElementById('threshold-slider');
+    const display = document.getElementById('threshold-display');
+    slider.addEventListener('input', () => { display.textContent = slider.value + '%'; });
+
+    document.getElementById('save-settings-btn').addEventListener('click', () => {
+        const btn = document.getElementById('save-settings-btn');
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Saved!';
+        btn.style.background = '#2ec4b6';
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Changes';
+            btn.style.background = '';
+        }, 2000);
+    });
+</script>
+{% endblock %}

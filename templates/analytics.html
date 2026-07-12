@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics — CC Approval System{% endblock %}
+{% block page_title %}Analytics{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="welcome-banner">
+    <div class="banner-icon">
+        <i class="fa-solid fa-chart-line"></i>
+    </div>
+    <div class="banner-text">
+        <h2>Analytics &amp; Insights</h2>
+        <p>Deep-dive into approval trends, demographic breakdowns, and risk factor distributions.</p>
+    </div>
+</section>
+
+<!-- KPI Row -->
+<div class="kpi-row">
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-blue">
+            <i class="fa-solid fa-user-plus text-blue"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Total Applicants</span>
+            <h3 class="kpi-value">{{ stats.total_applicants }}</h3>
+            <span class="kpi-growth text-success"><i class="fa-solid fa-arrow-trend-up"></i> 15.2% <span class="kpi-growth-sub">from last month</span></span>
+        </div>
+    </div>
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-green">
+            <i class="fa-solid fa-circle-check text-green"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Approval Rate</span>
+            <h3 class="kpi-value">{{ stats.approval_rate }}</h3>
+            <span class="kpi-growth text-success"><i class="fa-solid fa-arrow-trend-up"></i> 8.7% <span class="kpi-growth-sub">from last month</span></span>
+        </div>
+    </div>
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-purple">
+            <i class="fa-solid fa-crosshairs text-purple"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Model Accuracy</span>
+            <h3 class="kpi-value">90.2%</h3>
+            <span class="kpi-growth text-success"><i class="fa-solid fa-arrow-trend-up"></i> 3.4% <span class="kpi-growth-sub">this quarter</span></span>
+        </div>
+    </div>
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-yellow">
+            <i class="fa-solid fa-hourglass-half text-yellow"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Avg. Processing</span>
+            <h3 class="kpi-value">2.4 mins</h3>
+            <span class="kpi-growth text-danger"><i class="fa-solid fa-arrow-trend-down"></i> 12.5% <span class="kpi-growth-sub">from last month</span></span>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 1 -->
+<div class="charts-grid">
+    <div class="card chart-card">
+        <div class="card-header">
+            <i class="fa-solid fa-chart-line"></i>
+            <h3>Monthly Approval Rate Trend</h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="trendLineChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="card chart-card">
+        <div class="card-header">
+            <i class="fa-solid fa-chart-bar"></i>
+            <h3>Applications by Employment Type</h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="empBarChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 2 -->
+<div class="charts-grid">
+    <div class="card chart-card">
+        <div class="card-header">
+            <i class="fa-solid fa-chart-pie"></i>
+            <h3>Approval Distribution</h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="analyticsDonut"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="card chart-card">
+        <div class="card-header">
+            <i class="fa-solid fa-chart-area"></i>
+            <h3>Credit Score Distribution</h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="creditScoreBar"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const chartDefaults = { responsive: true, maintainAspectRatio: false };
+
+    // 1. Trend Line Chart
+    new Chart(document.getElementById('trendLineChart').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+            datasets: [{
+                label: 'Approval Rate (%)',
+                data: [52, 61, 58, 70, 76, 82, 79, 85, 88, 84, 90, 91],
+                borderColor: '#0b5ed7', backgroundColor: 'rgba(11,94,215,0.08)',
+                fill: true, tension: 0.4, borderWidth: 3,
+                pointRadius: 4, pointBackgroundColor: '#0b5ed7', pointBorderColor: '#fff', pointBorderWidth: 2
+            }]
+        },
+        options: { ...chartDefaults, plugins: { legend: { display: false } },
+            scales: { y: { min: 0, max: 100, ticks: { callback: v => v + '%' } } } }
+    });
+
+    // 2. Employment Type Bar
+    new Chart(document.getElementById('empBarChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: ['Salaried','Self-Employed','Student','Unemployed'],
+            datasets: [
+                { label: 'Approved', data: [3800, 2100, 980, 420], backgroundColor: '#2ec4b6', borderRadius: 6 },
+                { label: 'Rejected', data: [1200, 1400, 560, 680], backgroundColor: '#ff5a5f', borderRadius: 6 }
+            ]
+        },
+        options: { ...chartDefaults, plugins: { legend: { position: 'top' } },
+            scales: { x: { stacked: false }, y: { stacked: false } } }
+    });
+
+    // 3. Donut chart
+    const approvedCount = parseInt("{{ stats.approved_count }}") || 3486;
+    const rejectedCount = parseInt("{{ stats.rejected_count }}") || 1514;
+    new Chart(document.getElementById('analyticsDonut').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Approved', 'Rejected'],
+            datasets: [{ data: [approvedCount, rejectedCount],
+                backgroundColor: ['#2ec4b6','#ff5a5f'], borderWidth: 2, hoverOffset: 4 }]
+        },
+        options: { ...chartDefaults, cutout: '65%',
+            plugins: { legend: { position: 'right', labels: { font: { family: 'Inter', size: 13 } } } } }
+    });
+
+    // 4. Credit Score Distribution
+    new Chart(document.getElementById('creditScoreBar').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: ['< 500','500-599','600-649','650-699','700-749','750-799','800+'],
+            datasets: [{
+                label: 'Applicants',
+                data: [280, 640, 920, 1350, 1820, 1640, 820],
+                backgroundColor: ['#ff5a5f','#ff8c00','#f4a261','#0b5ed7','#3a86c8','#2ec4b6','#1b7a71'],
+                borderRadius: 6
+            }]
+        },
+        options: { ...chartDefaults, plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } } }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Predictions — CC Approval System{% endblock %}
+{% block page_title %}Predictions{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="welcome-banner">
+    <div class="banner-icon">
+        <i class="fa-solid fa-clipboard-check"></i>
+    </div>
+    <div class="banner-text">
+        <h2>Prediction History</h2>
+        <p>Browse all past model predictions, outcomes, and confidence scores for credit card applications.</p>
+    </div>
+</section>
+
+<!-- KPI Row -->
+<div class="kpi-row">
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-blue">
+            <i class="fa-solid fa-bolt text-blue"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Total Predictions</span>
+            <h3 class="kpi-value">{{ stats.total_applicants }}</h3>
+            <span class="kpi-growth text-success"><i class="fa-solid fa-arrow-trend-up"></i> 11.4% <span class="kpi-growth-sub">this week</span></span>
+        </div>
+    </div>
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-green">
+            <i class="fa-solid fa-circle-check text-green"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Approved Predictions</span>
+            <h3 class="kpi-value">{{ stats.approved_count }}</h3>
+            <span class="kpi-growth text-success"><i class="fa-solid fa-arrow-trend-up"></i> 6.3% <span class="kpi-growth-sub">this week</span></span>
+        </div>
+    </div>
+    <div class="card kpi-card">
+        <div class="kpi-icon-container" style="background:#fff0f0;">
+            <i class="fa-solid fa-circle-xmark" style="color:#ff5a5f;"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Rejected Predictions</span>
+            <h3 class="kpi-value">{{ stats.rejected_count }}</h3>
+            <span class="kpi-growth text-danger"><i class="fa-solid fa-arrow-trend-down"></i> 3.2% <span class="kpi-growth-sub">this week</span></span>
+        </div>
+    </div>
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-yellow">
+            <i class="fa-solid fa-crosshairs text-yellow"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Avg. Confidence</span>
+            <h3 class="kpi-value">{{ stats.approval_rate }}</h3>
+            <span class="kpi-growth text-success"><i class="fa-solid fa-arrow-trend-up"></i> 1.8% <span class="kpi-growth-sub">this week</span></span>
+        </div>
+    </div>
+</div>
+
+<!-- Prediction History Table -->
+<div class="card">
+    <div class="card-header" style="justify-content: space-between;">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <i class="fa-solid fa-list-check"></i>
+            <h3>Recent Predictions</h3>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+            <select id="status-filter" style="padding:7px 12px;border:1px solid #cbd5e0;border-radius:6px;font-size:13px;font-family:inherit;color:var(--text-primary);">
+                <option value="all">All Statuses</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+        </div>
+    </div>
+    <div class="card-body" style="padding:0;">
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Prediction ID</th>
+                        <th>Applicant</th>
+                        <th>Credit Score</th>
+                        <th>Annual Income</th>
+                        <th>Outcome</th>
+                        <th>Confidence</th>
+                        <th>Model Used</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody id="pred-tbody"></tbody>
+            </table>
+        </div>
+        <div class="table-pagination">
+            <span class="pagination-info" id="pred-page-info">Showing 1–10 of 40</span>
+            <div class="pagination-controls">
+                <button class="page-btn" id="pred-prev-btn" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                <span class="page-num" id="pred-page-display">Page 1 of 4</span>
+                <button class="page-btn" id="pred-next-btn"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const names = ['Rahul Sharma','Priya Verma','Arun Kumar','Sneha Patel','Vikram Singh','Meena Iyer','Amit Joshi','Kavita Nair','Ravi Reddy','Deepa Mehta','Suresh Pillai','Anita Gupta'];
+    const times = ['10:22 AM','11:05 AM','01:44 PM','02:30 PM','03:15 PM','04:00 PM','09:10 AM','08:55 AM'];
+    const days = ['Today','Yesterday','12 Jul 2026','11 Jul 2026'];
+
+    function getRandInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function getRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    const allPreds = Array.from({length: 40}, (_, i) => {
+        const status = Math.random() > 0.35 ? 'Approved' : 'Rejected';
+        const confidence = status === 'Approved' ? getRandInt(62, 99) : getRandInt(10, 45);
+        return {
+            id: 'PRD-' + String(5001 + i).padStart(4, '0'),
+            name: names[i % names.length],
+            creditScore: getRandInt(480, 820),
+            income: '₹' + (getRandInt(3, 25) * 50000).toLocaleString('en-IN'),
+            status,
+            confidence,
+            model: 'Random Forest v1.0',
+            time: getRandom(days) + ', ' + getRandom(times)
+        };
+    });
+
+    const ROWS = 10;
+    let page = 1;
+    let filteredPreds = [...allPreds];
+
+    function renderPreds() {
+        const tbody = document.getElementById('pred-tbody');
+        const start = (page - 1) * ROWS;
+        const slice = filteredPreds.slice(start, start + ROWS);
+        const totalPages = Math.ceil(filteredPreds.length / ROWS);
+
+        tbody.innerHTML = slice.map(p => {
+            const barColor = p.status === 'Approved' ? '#2ec4b6' : '#ff5a5f';
+            return `<tr>
+                <td><span style="font-weight:600;color:var(--secondary-color);">${p.id}</span></td>
+                <td>${p.name}</td>
+                <td><span style="font-weight:600;color:${p.creditScore >= 700 ? '#2e7d32' : p.creditScore >= 600 ? '#e65100' : '#c62828'}">${p.creditScore}</span></td>
+                <td>${p.income}</td>
+                <td><span class="status-pill" style="background:${barColor}20;color:${barColor};border:1px solid ${barColor}40;">${p.status}</span></td>
+                <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <div style="flex:1;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;">
+                            <div style="width:${p.confidence}%;height:100%;background:${barColor};border-radius:3px;"></div>
+                        </div>
+                        <span style="font-size:12px;font-weight:600;color:${barColor};min-width:34px;">${p.confidence}%</span>
+                    </div>
+                </td>
+                <td style="font-size:12px;color:var(--text-muted);">${p.model}</td>
+                <td style="font-size:12px;color:var(--text-muted);">${p.time}</td>
+            </tr>`;
+        }).join('');
+
+        document.getElementById('pred-page-info').textContent =
+            `Showing ${start + 1}–${Math.min(start + ROWS, filteredPreds.length)} of ${filteredPreds.length}`;
+        document.getElementById('pred-page-display').textContent = `Page ${page} of ${totalPages}`;
+        document.getElementById('pred-prev-btn').disabled = page === 1;
+        document.getElementById('pred-next-btn').disabled = page === totalPages || totalPages === 0;
+    }
+
+    document.getElementById('pred-prev-btn').addEventListener('click', () => { if (page > 1) { page--; renderPreds(); } });
+    document.getElementById('pred-next-btn').addEventListener('click', () => { const t = Math.ceil(filteredPreds.length / ROWS); if (page < t) { page++; renderPreds(); } });
+
+    document.getElementById('status-filter').addEventListener('change', function() {
+        const val = this.value;
+        filteredPreds = val === 'all' ? [...allPreds] : allPreds.filter(p => p.status === val);
+        page = 1;
+        renderPreds();
+    });
+
+    renderPreds();
+</script>
+{% endblock %}

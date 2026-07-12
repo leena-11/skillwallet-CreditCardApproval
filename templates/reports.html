@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Reports — CC Approval System{% endblock %}
+{% block page_title %}Reports{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="welcome-banner">
+    <div class="banner-icon">
+        <i class="fa-solid fa-file-invoice"></i>
+    </div>
+    <div class="banner-text">
+        <h2>Reports &amp; Exports</h2>
+        <p>Generate, schedule, and download detailed reports on approval activity and model performance.</p>
+    </div>
+</section>
+
+<!-- Report Type Cards -->
+<div class="reports-cards-grid">
+    {% set report_items = [
+        ('fa-chart-line', 'bg-light-blue', 'text-blue', 'Approval Summary Report', 'Monthly breakdown of approvals, rejections, and rates.', 'Generated: Today'),
+        ('fa-users', 'bg-light-green', 'text-green', 'Applicant Demographics', 'Age, gender, and employment distribution analysis.', 'Generated: Yesterday'),
+        ('fa-gears', 'bg-light-purple', 'text-purple', 'Model Performance Report', 'Accuracy, precision, recall, and F1 metrics over time.', 'Generated: Jul 10, 2026'),
+        ('fa-triangle-exclamation', 'bg-light-yellow', 'text-yellow', 'Risk Factor Analysis', 'Key risk factors contributing to rejections.', 'Generated: Jul 09, 2026'),
+    ] %}
+    {% for icon, bg, color, title, desc, date in report_items %}
+    <div class="card report-card">
+        <div class="card-body" style="padding:24px;">
+            <div class="kpi-icon-container {{ bg }}" style="margin-bottom:16px;">
+                <i class="fa-solid {{ icon }} {{ color }}"></i>
+            </div>
+            <h4 style="font-size:15px;font-weight:700;margin-bottom:6px;">{{ title }}</h4>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">{{ desc }}</p>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:12px;color:var(--text-muted);"><i class="fa-regular fa-clock"></i> {{ date }}</span>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-secondary" style="padding:6px 12px;font-size:12px;">
+                        <i class="fa-solid fa-eye"></i> Preview
+                    </button>
+                    <button class="btn btn-primary" style="padding:6px 12px;font-size:12px;">
+                        <i class="fa-solid fa-download"></i> Export
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Monthly Summary Table + Chart -->
+<div class="dashboard-grid">
+    <div class="card">
+        <div class="card-header">
+            <i class="fa-solid fa-table"></i>
+            <h3>Monthly Summary</h3>
+        </div>
+        <div class="card-body" style="padding:0;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Applications</th>
+                        <th>Approved</th>
+                        <th>Rejected</th>
+                        <th>Rate</th>
+                        <th>Trend</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set months_data = [
+                        ('July 2026', 1204, 986, 218, '81.9%', '+3.1%', True),
+                        ('June 2026', 1167, 958, 209, '82.1%', '+4.2%', True),
+                        ('May 2026', 1120, 896, 224, '80.0%', '+2.8%', True),
+                        ('April 2026', 1089, 861, 228, '79.1%', '+1.5%', True),
+                        ('March 2026', 1072, 840, 232, '78.4%', '-0.8%', False),
+                        ('February 2026', 985, 780, 205, '79.2%', '+2.1%', True),
+                    ] %}
+                    {% for month, apps, approved, rejected, rate, trend, is_pos in months_data %}
+                    <tr>
+                        <td style="font-weight:500;">{{ month }}</td>
+                        <td>{{ apps }}</td>
+                        <td style="color:#1b7a71;font-weight:600;">{{ approved }}</td>
+                        <td style="color:#b83236;font-weight:600;">{{ rejected }}</td>
+                        <td style="font-weight:700;">{{ rate }}</td>
+                        <td>
+                            {% if is_pos %}
+                            <span style="color:#2e7d32;font-size:12px;font-weight:600;"><i class="fa-solid fa-arrow-trend-up"></i> {{ trend }}</span>
+                            {% else %}
+                            <span style="color:#c62828;font-size:12px;font-weight:600;"><i class="fa-solid fa-arrow-trend-down"></i> {{ trend }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Summary Chart -->
+    <div class="card chart-card">
+        <div class="card-header">
+            <i class="fa-solid fa-chart-bar"></i>
+            <h3>Monthly Applications</h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    new Chart(document.getElementById('monthlyChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: ['Feb','Mar','Apr','May','Jun','Jul'],
+            datasets: [
+                { label: 'Approved', data: [780, 840, 861, 896, 958, 986], backgroundColor: '#2ec4b6', borderRadius: 6 },
+                { label: 'Rejected', data: [205, 232, 228, 224, 209, 218], backgroundColor: '#ff5a5f', borderRadius: 6 }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'top' } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+});
+</script>
+{% endblock %}

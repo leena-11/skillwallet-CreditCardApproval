@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Users — CC Approval System{% endblock %}
+{% block page_title %}User Management{% endblock %}
+
+{% block content %}
+<section class="welcome-banner">
+    <div class="banner-icon">
+        <i class="fa-solid fa-user-gear"></i>
+    </div>
+    <div class="banner-text">
+        <h2>User Management</h2>
+        <p>Manage system users, roles, and access permissions for the approval platform.</p>
+    </div>
+</section>
+
+<!-- User Stats -->
+<div class="kpi-row">
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-blue">
+            <i class="fa-solid fa-users text-blue"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Total Users</span>
+            <h3 class="kpi-value">14</h3>
+            <span class="kpi-growth text-success"><i class="fa-solid fa-arrow-trend-up"></i> 2 added this month</span>
+        </div>
+    </div>
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-green">
+            <i class="fa-solid fa-user-shield text-green"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Administrators</span>
+            <h3 class="kpi-value">3</h3>
+            <span class="kpi-growth" style="color:var(--text-muted);">Full system access</span>
+        </div>
+    </div>
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-purple">
+            <i class="fa-solid fa-user-tie text-purple"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Analysts</span>
+            <h3 class="kpi-value">8</h3>
+            <span class="kpi-growth" style="color:var(--text-muted);">Read &amp; predict access</span>
+        </div>
+    </div>
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-yellow">
+            <i class="fa-solid fa-user text-yellow"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Viewers</span>
+            <h3 class="kpi-value">3</h3>
+            <span class="kpi-growth" style="color:var(--text-muted);">Read-only access</span>
+        </div>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="card">
+    <div class="card-header" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <i class="fa-solid fa-users-gear"></i>
+            <h3>System Users</h3>
+        </div>
+        <button class="btn btn-primary" style="padding:8px 16px;font-size:13px;">
+            <i class="fa-solid fa-user-plus"></i> Add User
+        </button>
+    </div>
+    <div class="card-body" style="padding:0;">
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Last Login</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set users_data = [
+                        ('Admin User', 'admin@ccapproval.in', 'Administrator', 'Today, 08:45 AM', 'Active'),
+                        ('Priya Sharma', 'priya@ccapproval.in', 'Administrator', 'Today, 10:12 AM', 'Active'),
+                        ('Rajan Mehta', 'rajan@ccapproval.in', 'Administrator', 'Yesterday', 'Active'),
+                        ('Anita Roy', 'anita@ccapproval.in', 'Analyst', 'Today, 09:30 AM', 'Active'),
+                        ('Kiran Bose', 'kiran@ccapproval.in', 'Analyst', '11 Jul 2026', 'Active'),
+                        ('Deepak Gupta', 'deepak@ccapproval.in', 'Analyst', '10 Jul 2026', 'Inactive'),
+                        ('Sunita Patel', 'sunita@ccapproval.in', 'Analyst', 'Today, 11:00 AM', 'Active'),
+                        ('Manoj Jain', 'manoj@ccapproval.in', 'Analyst', 'Yesterday', 'Active'),
+                        ('Fatima Khan', 'fatima@ccapproval.in', 'Analyst', '09 Jul 2026', 'Active'),
+                        ('Suresh Rao', 'suresh@ccapproval.in', 'Analyst', 'Today, 02:15 PM', 'Active'),
+                        ('Leela Reddy', 'leela@ccapproval.in', 'Analyst', '12 Jul 2026', 'Active'),
+                        ('Arjun Iyer', 'arjun@ccapproval.in', 'Analyst', '08 Jul 2026', 'Inactive'),
+                        ('Meera Nair', 'meera@ccapproval.in', 'Viewer', 'Today, 03:00 PM', 'Active'),
+                        ('Praveen Das', 'praveen@ccapproval.in', 'Viewer', '10 Jul 2026', 'Active'),
+                    ] %}
+                    {% for name, email, role, login, status in users_data %}
+                    <tr>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span class="avatar" style="width:32px;height:32px;font-size:13px;background:var(--primary-light);">{{ name[0] }}</span>
+                                <span style="font-weight:500;">{{ name }}</span>
+                            </div>
+                        </td>
+                        <td style="color:var(--text-muted);font-size:13px;">{{ email }}</td>
+                        <td>
+                            {% if role == 'Administrator' %}
+                            <span class="status-pill" style="background:#eef5fc;color:#3a86c8;border:1px solid #3a86c820;">{{ role }}</span>
+                            {% elif role == 'Analyst' %}
+                            <span class="status-pill" style="background:#f5edf9;color:#8a3ab9;border:1px solid #8a3ab920;">{{ role }}</span>
+                            {% else %}
+                            <span class="status-pill" style="background:#fdf5ee;color:#f4a261;border:1px solid #f4a26120;">{{ role }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="color:var(--text-muted);font-size:13px;">{{ login }}</td>
+                        <td>
+                            {% if status == 'Active' %}
+                            <span class="status-pill" style="background:#e8fcf9;color:#1b7a71;border:1px solid #2ec4b640;">{{ status }}</span>
+                            {% else %}
+                            <span class="status-pill" style="background:#f5f5f5;color:#718096;border:1px solid #cbd5e0;">{{ status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="icon-btn" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button class="icon-btn" title="Delete" style="color:#ff5a5f;"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

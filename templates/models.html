@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Models — CC Approval System{% endblock %}
+{% block page_title %}Models{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="welcome-banner">
+    <div class="banner-icon">
+        <i class="fa-solid fa-gears"></i>
+    </div>
+    <div class="banner-text">
+        <h2>Model Management</h2>
+        <p>View trained model details, performance metrics, and feature importances for the credit approval pipeline.</p>
+    </div>
+</section>
+
+<!-- Model Status Cards -->
+<div class="kpi-row">
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-green">
+            <i class="fa-solid fa-circle-check text-green"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Active Model</span>
+            <h3 class="kpi-value" style="font-size:14px;">Random Forest</h3>
+            <span class="kpi-growth text-success">v1.0.0 — Production</span>
+        </div>
+    </div>
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-blue">
+            <i class="fa-solid fa-crosshairs text-blue"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Accuracy</span>
+            <h3 class="kpi-value">90.2%</h3>
+            <span class="kpi-growth text-success"><i class="fa-solid fa-arrow-trend-up"></i> 3.4% improvement</span>
+        </div>
+    </div>
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-purple">
+            <i class="fa-solid fa-gauge-high text-purple"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">ROC AUC Score</span>
+            <h3 class="kpi-value">0.941</h3>
+            <span class="kpi-growth text-success"><i class="fa-solid fa-arrow-trend-up"></i> Strong discriminator</span>
+        </div>
+    </div>
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-yellow">
+            <i class="fa-solid fa-calendar-check text-yellow"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Last Trained</span>
+            <h3 class="kpi-value" style="font-size:15px;">Jul 10, 2026</h3>
+            <span class="kpi-growth" style="color:var(--text-muted);">On full dataset</span>
+        </div>
+    </div>
+</div>
+
+<!-- Model Details + Metrics -->
+<div class="dashboard-grid">
+    <!-- Left: Model Info -->
+    <div class="card">
+        <div class="card-header">
+            <i class="fa-solid fa-circle-info"></i>
+            <h3>Model Details</h3>
+        </div>
+        <div class="card-body">
+            <div class="model-info-grid">
+                <div class="info-row"><span class="info-label">Algorithm</span><span class="info-value">Random Forest Classifier</span></div>
+                <div class="info-row"><span class="info-label">Library</span><span class="info-value">scikit-learn 1.x</span></div>
+                <div class="info-row"><span class="info-label">Pipeline Steps</span><span class="info-value">Imputer → Scaler → Encoder → RFC</span></div>
+                <div class="info-row"><span class="info-label">N Estimators</span><span class="info-value">100</span></div>
+                <div class="info-row"><span class="info-label">Max Depth</span><span class="info-value">None (full growth)</span></div>
+                <div class="info-row"><span class="info-label">Training Size</span><span class="info-value">80% of dataset</span></div>
+                <div class="info-row"><span class="info-label">Test Size</span><span class="info-value">20% of dataset</span></div>
+                <div class="info-row"><span class="info-label">Features</span><span class="info-value">12 input features</span></div>
+                <div class="info-row"><span class="info-label">Model File</span><span class="info-value">model.pkl (228 KB)</span></div>
+                <div class="info-row"><span class="info-label">Status</span>
+                    <span class="status-pill" style="background:#e8fcf9;color:#1b7a71;border:1px solid #2ec4b620;">Active / Production</span>
+                </div>
+            </div>
+
+            <div style="margin-top:24px;">
+                <h4 style="font-size:14px;font-weight:600;margin-bottom:14px;color:var(--text-primary);">Performance Metrics</h4>
+                <div class="metrics-table">
+                    <div class="metric-row header-row">
+                        <span>Metric</span><span>Score</span><span>Benchmark</span>
+                    </div>
+                    <div class="metric-row"><span>Accuracy</span><span class="metric-val good">90.2%</span><span class="metric-bench">&ge; 85%</span></div>
+                    <div class="metric-row"><span>Precision</span><span class="metric-val good">88.7%</span><span class="metric-bench">&ge; 80%</span></div>
+                    <div class="metric-row"><span>Recall</span><span class="metric-val good">91.4%</span><span class="metric-bench">&ge; 80%</span></div>
+                    <div class="metric-row"><span>F1 Score</span><span class="metric-val good">90.0%</span><span class="metric-bench">&ge; 82%</span></div>
+                    <div class="metric-row"><span>ROC AUC</span><span class="metric-val good">0.941</span><span class="metric-bench">&ge; 0.90</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Feature Importance Chart -->
+    <div class="card chart-card">
+        <div class="card-header">
+            <i class="fa-solid fa-ranking-star"></i>
+            <h3>Feature Importances</h3>
+        </div>
+        <div class="card-body" style="height:420px;">
+            <div class="chart-container" style="height:100%;">
+                <canvas id="featureChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    new Chart(document.getElementById('featureChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: ['Credit Score','Annual Income','Loan Amt.','Existing Loan','Yrs in Job','Age','CC Inquiries','Payment Dues','Emp. Type','Education','Marital Status','Gender'],
+            datasets: [{
+                label: 'Importance Score',
+                data: [0.28, 0.19, 0.14, 0.11, 0.09, 0.07, 0.05, 0.04, 0.01, 0.01, 0.005, 0.005],
+                backgroundColor: [
+                    '#0b5ed7','#1a73e8','#3a86c8','#5ba0d8','#2ec4b6','#3dd6c8',
+                    '#f4a261','#e8985a','#8a3ab9','#a050d0','#ff5a5f','#ff7a7e'
+                ],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, max: 0.35, ticks: { callback: v => (v * 100).toFixed(0) + '%' } }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

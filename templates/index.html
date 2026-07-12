@@ -1,0 +1,423 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — CC Approval System{% endblock %}
+{% block page_title %}Credit Card Approval Prediction{% endblock %}
+
+{% block head %}
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+    <!-- Welcome Banner -->
+    <section class="welcome-banner">
+        <div class="banner-icon">
+            <i class="fa-solid fa-credit-card"></i>
+        </div>
+        <div class="banner-text">
+            <h2>Credit Card Approval Prediction</h2>
+            <p>Enter applicant details to predict the likelihood of credit card approval using advanced machine learning models.</p>
+        </div>
+    </section>
+
+    <!-- Cards Grid: Form & Results -->
+    <div class="dashboard-grid">
+        <!-- Left: Form Card -->
+        <div class="card form-card">
+            <div class="card-header">
+                <i class="fa-solid fa-user-pen"></i>
+                <h3>Applicant Information</h3>
+            </div>
+            <div class="card-body">
+                <form id="prediction-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select id="gender" name="gender" required>
+                                <option value="Male" selected>Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="marital_status">Marital Status</label>
+                            <select id="marital_status" name="marital_status" required>
+                                <option value="Married" selected>Married</option>
+                                <option value="Single">Single</option>
+                                <option value="Divorced">Divorced</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="existing_loan_balance">Existing Loan Balance (₹)</label>
+                            <input type="number" id="existing_loan_balance" name="existing_loan_balance" min="0" value="50000" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="age">Age</label>
+                            <input type="number" id="age" name="age" min="18" max="100" value="28" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employment_type">Employment Type</label>
+                            <select id="employment_type" name="employment_type" required>
+                                <option value="Salaried" selected>Salaried</option>
+                                <option value="Self-Employed">Self-Employed</option>
+                                <option value="Student">Student</option>
+                                <option value="Unemployed">Unemployed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="loan_amount_requested">Loan Amount Requested (₹)</label>
+                            <input type="number" id="loan_amount_requested" name="loan_amount_requested" min="0" value="100000" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="annual_income">Annual Income (₹)</label>
+                            <input type="number" id="annual_income" name="annual_income" min="0" value="550000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="years_in_current_job">Years in Current Job</label>
+                            <input type="number" id="years_in_current_job" name="years_in_current_job" min="0" value="4" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="credit_card_inquiries">Credit Card Inquiries</label>
+                            <input type="number" id="credit_card_inquiries" name="credit_card_inquiries" min="0" max="20" value="2" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="education_level">Education Level</label>
+                            <select id="education_level" name="education_level" required>
+                                <option value="Graduate" selected>Graduate</option>
+                                <option value="Undergraduate">Undergraduate</option>
+                                <option value="Postgraduate">Postgraduate</option>
+                                <option value="High School">High School</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="credit_score">Credit Score</label>
+                            <input type="number" id="credit_score" name="credit_score" min="300" max="850" value="720" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="payment_of_previous_dues">Payment of Previous Dues</label>
+                            <select id="payment_of_previous_dues" name="payment_of_previous_dues" required>
+                                <option value="Paid on Time" selected>Paid on Time</option>
+                                <option value="Delayed">Delayed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="btn-predict">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Predict Approval
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="btn-reset">
+                            <i class="fa-solid fa-rotate-left"></i> Reset
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right: Prediction Results -->
+        <div class="card result-card">
+            <div class="card-header">
+                <i class="fa-solid fa-chart-pie"></i>
+                <h3>Prediction Result</h3>
+            </div>
+            <div class="card-body result-body">
+                <!-- Placeholder when no prediction has run yet -->
+                <div class="result-placeholder" id="result-placeholder">
+                    <i class="fa-solid fa-circle-question placeholder-icon"></i>
+                    <h4>Awaiting Input</h4>
+                    <p>Fill out the applicant details on the left and click <strong>Predict Approval</strong> to calculate the outcome.</p>
+                </div>
+
+                <!-- Loading Spinner -->
+                <div class="result-loading d-none" id="result-loading">
+                    <div class="spinner"></div>
+                    <p>Running machine learning models...</p>
+                </div>
+
+                <!-- Real-time Prediction Output -->
+                <div class="result-output d-none" id="result-output">
+                    <div class="result-badge-container">
+                        <div class="badge-icon-circle" id="result-icon-circle">
+                            <i class="fa-solid" id="result-icon"></i>
+                        </div>
+                        <h2 id="result-status-text">APPROVED</h2>
+                        <p id="result-sub-text">The applicant is likely to be approved for a credit card.</p>
+                    </div>
+
+                    <div class="probability-container">
+                        <span class="probability-label">Probability of Approval</span>
+                        <div class="probability-value-badge" id="probability-value-badge">
+                            <span id="probability-percentage">87.42%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" id="probability-progress-bar" style="width: 87.42%"></div>
+                        </div>
+                    </div>
+
+                    <div class="explanation-box" id="explanation-box">
+                        <h4>Explanation</h4>
+                        <p id="explanation-text">Based on the applicant's financial profile and credit history, our model predicts a high likelihood of approval.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Metrics Cards Row -->
+    <div class="kpi-row">
+        <div class="card kpi-card">
+            <div class="kpi-icon-container bg-light-blue">
+                <i class="fa-solid fa-user-plus text-blue"></i>
+            </div>
+            <div class="kpi-details">
+                <span class="kpi-title">Total Applicants</span>
+                <h3 class="kpi-value" id="kpi-total-val">{{ stats.total_applicants }}</h3>
+                <span class="kpi-growth text-success"><i class="fa-solid fa-arrow-trend-up"></i> 15.2% <span class="kpi-growth-sub">from last month</span></span>
+            </div>
+        </div>
+        <div class="card kpi-card">
+            <div class="kpi-icon-container bg-light-green">
+                <i class="fa-solid fa-circle-check text-green"></i>
+            </div>
+            <div class="kpi-details">
+                <span class="kpi-title">Approval Rate</span>
+                <h3 class="kpi-value" id="kpi-rate-val">{{ stats.approval_rate }}</h3>
+                <span class="kpi-growth text-success"><i class="fa-solid fa-arrow-trend-up"></i> 8.7% <span class="kpi-growth-sub">from last month</span></span>
+            </div>
+        </div>
+        <div class="card kpi-card">
+            <div class="kpi-icon-container bg-light-purple">
+                <i class="fa-solid fa-hourglass-half text-purple"></i>
+            </div>
+            <div class="kpi-details">
+                <span class="kpi-title">Avg. Processing Time</span>
+                <h3 class="kpi-value">2.4 mins</h3>
+                <span class="kpi-growth text-danger"><i class="fa-solid fa-arrow-trend-down"></i> 12.5% <span class="kpi-growth-sub">from last month</span></span>
+            </div>
+        </div>
+        <div class="card kpi-card">
+            <div class="kpi-icon-container bg-light-yellow">
+                <i class="fa-solid fa-crosshairs text-yellow"></i>
+            </div>
+            <div class="kpi-details">
+                <span class="kpi-title">Model Accuracy</span>
+                <h3 class="kpi-value">90.2%</h3>
+                <span class="kpi-growth text-success"><i class="fa-solid fa-arrow-trend-up"></i> 3.4% <span class="kpi-growth-sub">from last month</span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Analysis Grid -->
+    <div class="charts-grid">
+        <!-- Line Chart -->
+        <div class="card chart-card">
+            <div class="card-header">
+                <i class="fa-solid fa-chart-line"></i>
+                <h3>Approval Rate Trend</h3>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Donut Chart -->
+        <div class="card chart-card">
+            <div class="card-header">
+                <i class="fa-solid fa-chart-pie"></i>
+                <h3>Approval Distribution</h3>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="donutChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('prediction-form');
+        const placeholder = document.getElementById('result-placeholder');
+        const loading = document.getElementById('result-loading');
+        const output = document.getElementById('result-output');
+
+        const resultStatusText = document.getElementById('result-status-text');
+        const resultSubText = document.getElementById('result-sub-text');
+        const probabilityPercentage = document.getElementById('probability-percentage');
+        const probabilityProgressBar = document.getElementById('probability-progress-bar');
+        const probabilityValueBadge = document.getElementById('probability-value-badge');
+        const resultIconCircle = document.getElementById('result-icon-circle');
+        const resultIcon = document.getElementById('result-icon');
+        const explanationText = document.getElementById('explanation-text');
+        const explanationBox = document.getElementById('explanation-box');
+
+        // Handle form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Show loading state
+            placeholder.classList.add('d-none');
+            output.classList.add('d-none');
+            loading.classList.remove('d-none');
+
+            const formData = new FormData(form);
+
+            try {
+                // Send POST request to Flask endpoint
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                // Stop loading spinner
+                loading.classList.add('d-none');
+
+                if (result.success) {
+                    // Display Prediction Results
+                    output.classList.remove('d-none');
+
+                    const status = result.status;
+                    const probability = result.probability;
+                    const explanation = result.explanation;
+
+                    resultStatusText.innerText = status;
+                    probabilityPercentage.innerText = probability + '%';
+                    probabilityProgressBar.style.width = probability + '%';
+                    explanationText.innerText = explanation;
+
+                    if (status === 'APPROVED') {
+                        resultSubText.innerText = "The applicant is likely to be approved for a credit card.";
+                        resultStatusText.className = 'text-approved';
+                        resultIconCircle.className = 'badge-icon-circle bg-approved';
+                        resultIcon.className = 'fa-solid fa-check text-green-dark';
+                        probabilityValueBadge.className = 'probability-value-badge bg-light-green text-green';
+                        probabilityProgressBar.className = 'progress-bar-fill bg-success';
+                        explanationBox.className = 'explanation-box bg-light-green-border';
+                    } else {
+                        resultSubText.innerText = "The applicant is likely to be rejected for a credit card.";
+                        resultStatusText.className = 'text-rejected';
+                        resultIconCircle.className = 'badge-icon-circle bg-rejected';
+                        resultIcon.className = 'fa-solid fa-xmark text-red-dark';
+                        probabilityValueBadge.className = 'probability-value-badge bg-light-red text-red';
+                        probabilityProgressBar.className = 'progress-bar-fill bg-danger';
+                        explanationBox.className = 'explanation-box bg-light-red-border';
+                    }
+                } else {
+                    placeholder.classList.remove('d-none');
+                    alert("Error predicting: " + result.error);
+                }
+
+            } catch (error) {
+                loading.classList.add('d-none');
+                placeholder.classList.remove('d-none');
+                alert("Network error: " + error.message);
+            }
+        });
+
+        // Handle Reset button
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            form.reset();
+            placeholder.classList.remove('d-none');
+            output.classList.add('d-none');
+            loading.classList.add('d-none');
+        });
+
+        // Render Chart.js visual charts
+        // 1. Line Chart: Approval Rate Trend
+        const ctxLine = document.getElementById('lineChart').getContext('2d');
+        new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Approval Rate (%)',
+                    data: [52, 75, 58, 76, 82, 91],
+                    borderColor: '#0b5ed7',
+                    backgroundColor: 'rgba(11, 94, 215, 0.08)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#0b5ed7',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        min: 0, max: 100,
+                        ticks: { callback: function(value) { return value + '%'; } }
+                    }
+                }
+            }
+        });
+
+        // 2. Donut Chart: Approval Distribution
+        const approvedCount = parseInt("{{ stats.approved_count }}") || 3486;
+        const rejectedCount = parseInt("{{ stats.rejected_count }}") || 1514;
+        const totalCount = approvedCount + rejectedCount;
+        const approvedPercent = ((approvedCount / totalCount) * 100).toFixed(1);
+        const rejectedPercent = ((rejectedCount / totalCount) * 100).toFixed(1);
+
+        const ctxDonut = document.getElementById('donutChart').getContext('2d');
+        new Chart(ctxDonut, {
+            type: 'doughnut',
+            data: {
+                labels: ['Approved', 'Rejected'],
+                datasets: [{
+                    data: [approvedCount, rejectedCount],
+                    backgroundColor: ['#2ec4b6', '#ff5a5f'],
+                    borderWidth: 2,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            font: { family: 'Inter', size: 13 },
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map(function(label, i) {
+                                        const val = data.datasets[0].data[i];
+                                        const percent = i === 0 ? approvedPercent : rejectedPercent;
+                                        return {
+                                            text: label + ': ' + val.toLocaleString() + ' (' + percent + '%)',
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            index: i
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+    });
+</script>
+{% endblock %}

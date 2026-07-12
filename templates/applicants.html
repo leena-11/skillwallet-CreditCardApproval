@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Applicants — CC Approval System{% endblock %}
+{% block page_title %}Applicants{% endblock %}
+
+{% block content %}
+<section class="welcome-banner">
+    <div class="banner-icon">
+        <i class="fa-solid fa-users"></i>
+    </div>
+    <div class="banner-text">
+        <h2>Applicant Management</h2>
+        <p>View, search, and manage all credit card applicants in the system.</p>
+    </div>
+</section>
+
+<!-- Stats Row -->
+<div class="kpi-row">
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-blue">
+            <i class="fa-solid fa-user-plus text-blue"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Total Applicants</span>
+            <h3 class="kpi-value">{{ stats.total_applicants }}</h3>
+            <span class="kpi-growth text-success"><i class="fa-solid fa-arrow-trend-up"></i> 15.2% <span class="kpi-growth-sub">from last month</span></span>
+        </div>
+    </div>
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-green">
+            <i class="fa-solid fa-circle-check text-green"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Approved</span>
+            <h3 class="kpi-value">{{ stats.approved_count }}</h3>
+            <span class="kpi-growth text-success"><i class="fa-solid fa-arrow-trend-up"></i> 8.7% <span class="kpi-growth-sub">from last month</span></span>
+        </div>
+    </div>
+    <div class="card kpi-card">
+        <div class="kpi-icon-container" style="background:#fff0f0;">
+            <i class="fa-solid fa-circle-xmark" style="color:#ff5a5f;"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Rejected</span>
+            <h3 class="kpi-value">{{ stats.rejected_count }}</h3>
+            <span class="kpi-growth text-danger"><i class="fa-solid fa-arrow-trend-down"></i> 4.1% <span class="kpi-growth-sub">from last month</span></span>
+        </div>
+    </div>
+    <div class="card kpi-card">
+        <div class="kpi-icon-container bg-light-purple">
+            <i class="fa-solid fa-clock text-purple"></i>
+        </div>
+        <div class="kpi-details">
+            <span class="kpi-title">Pending Review</span>
+            <h3 class="kpi-value">142</h3>
+            <span class="kpi-growth text-success"><i class="fa-solid fa-arrow-trend-up"></i> 2.3% <span class="kpi-growth-sub">from last month</span></span>
+        </div>
+    </div>
+</div>
+
+<!-- Applicant Table Card -->
+<div class="card">
+    <div class="card-header" style="justify-content: space-between;">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <i class="fa-solid fa-table-list"></i>
+            <h3>All Applicants</h3>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+            <div class="page-search-wrapper">
+                <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);font-size:13px;"></i>
+                <input type="text" id="applicant-search" class="page-search-input" placeholder="Search applicants...">
+            </div>
+            <button class="btn btn-primary" style="padding:8px 16px;font-size:13px;">
+                <i class="fa-solid fa-plus"></i> Add New
+            </button>
+        </div>
+    </div>
+    <div class="card-body" style="padding:0;">
+        <div class="table-wrapper">
+            <table class="data-table" id="applicants-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Age</th>
+                        <th>Employment</th>
+                        <th>Annual Income</th>
+                        <th>Credit Score</th>
+                        <th>Status</th>
+                        <th>Date Applied</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="applicants-tbody">
+                    <!-- Rows populated by JS -->
+                </tbody>
+            </table>
+        </div>
+        <div class="table-pagination">
+            <span class="pagination-info" id="pagination-info">Showing 1–10 of 50</span>
+            <div class="pagination-controls">
+                <button class="page-btn" id="prev-btn" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                <span class="page-num" id="page-display">Page 1 of 5</span>
+                <button class="page-btn" id="next-btn"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Generate realistic mock applicant data
+    const names = ['Rahul Sharma','Priya Verma','Arun Kumar','Sneha Patel','Vikram Singh','Meena Iyer','Amit Joshi','Kavita Nair','Ravi Reddy','Deepa Mehta','Suresh Pillai','Anita Gupta','Manoj Tiwari','Pooja Desai','Kiran Rao','Sanjay Bhat','Divya Chandra','Nitin Malhotra','Rekha Sinha','Arjun Nair','Bhavna Shah','Chetan Kapoor','Leela Varma','Dev Mishra','Farida Khan','Girish Pandey','Hema Rao','Inder Bose','Jaya Kulkarni','Karthik Menon','Lakshmi Nambiar','Mohan Das','Nisha Jain','Om Prakash','Parveen Arora'];
+    const empTypes = ['Salaried','Self-Employed','Student','Unemployed'];
+    const statuses = ['Approved','Rejected','Pending'];
+    const statusColors = { Approved: '#2ec4b6', Rejected: '#ff5a5f', Pending: '#f4a261' };
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul'];
+
+    function getRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function getRandInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+    const allApplicants = Array.from({length: 50}, (_, i) => ({
+        id: 'APP-' + String(1001 + i).padStart(4, '0'),
+        name: names[i % names.length],
+        age: getRandInt(22, 58),
+        employment: getRandom(empTypes),
+        income: '₹' + (getRandInt(3, 25) * 50000).toLocaleString('en-IN'),
+        creditScore: getRandInt(480, 820),
+        status: getRandom(statuses),
+        date: getRandInt(1, 28) + ' ' + getRandom(months) + ' 2026'
+    }));
+
+    const ROWS_PER_PAGE = 10;
+    let currentPage = 1;
+    let filtered = [...allApplicants];
+
+    function renderTable() {
+        const tbody = document.getElementById('applicants-tbody');
+        const start = (currentPage - 1) * ROWS_PER_PAGE;
+        const slice = filtered.slice(start, start + ROWS_PER_PAGE);
+        const totalPages = Math.ceil(filtered.length / ROWS_PER_PAGE);
+
+        tbody.innerHTML = slice.map(a => `
+            <tr>
+                <td><span style="font-weight:600;color:var(--secondary-color);">${a.id}</span></td>
+                <td>${a.name}</td>
+                <td>${a.age}</td>
+                <td>${a.employment}</td>
+                <td>${a.income}</td>
+                <td><span style="font-weight:600;color:${a.creditScore >= 700 ? '#2e7d32' : a.creditScore >= 600 ? '#e65100' : '#c62828'}">${a.creditScore}</span></td>
+                <td><span class="status-pill" style="background:${statusColors[a.status]}20;color:${statusColors[a.status]};border:1px solid ${statusColors[a.status]}40;">${a.status}</span></td>
+                <td style="color:var(--text-muted);font-size:13px;">${a.date}</td>
+                <td>
+                    <button class="icon-btn" title="View"><i class="fa-solid fa-eye"></i></button>
+                    <button class="icon-btn" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+                </td>
+            </tr>
+        `).join('');
+
+        document.getElementById('pagination-info').textContent =
+            `Showing ${start + 1}–${Math.min(start + ROWS_PER_PAGE, filtered.length)} of ${filtered.length}`;
+        document.getElementById('page-display').textContent = `Page ${currentPage} of ${totalPages}`;
+        document.getElementById('prev-btn').disabled = currentPage === 1;
+        document.getElementById('next-btn').disabled = currentPage === totalPages || totalPages === 0;
+    }
+
+    document.getElementById('prev-btn').addEventListener('click', () => { if (currentPage > 1) { currentPage--; renderTable(); } });
+    document.getElementById('next-btn').addEventListener('click', () => { const t = Math.ceil(filtered.length / ROWS_PER_PAGE); if (currentPage < t) { currentPage++; renderTable(); } });
+
+    document.getElementById('applicant-search').addEventListener('input', function() {
+        const q = this.value.toLowerCase();
+        filtered = allApplicants.filter(a =>
+            a.name.toLowerCase().includes(q) || a.id.toLowerCase().includes(q) ||
+            a.employment.toLowerCase().includes(q) || a.status.toLowerCase().includes(q)
+        );
+        currentPage = 1;
+        renderTable();
+    });
+
+    renderTable();
+</script>
+{% endblock %}

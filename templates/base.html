@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Credit Card Approval System{% endblock %}</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-credit-card brand-icon"></i>
+                <div class="brand-text">
+                    <h2>CC Approval</h2>
+                    <p>Prediction System</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-menu">
+                <a href="{{ url_for('dashboard') }}" class="menu-item {% if active_page == 'dashboard' %}active{% endif %}" id="menu-dashboard">
+                    <i class="fa-solid fa-house-chimney"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('applicants') }}" class="menu-item {% if active_page == 'applicants' %}active{% endif %}" id="menu-applicants">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Applicants</span>
+                </a>
+                <a href="{{ url_for('predictions') }}" class="menu-item {% if active_page == 'predictions' %}active{% endif %}" id="menu-predictions">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                    <span>Predictions</span>
+                </a>
+                <a href="{{ url_for('analytics') }}" class="menu-item {% if active_page == 'analytics' %}active{% endif %}" id="menu-analytics">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="{{ url_for('models') }}" class="menu-item {% if active_page == 'models' %}active{% endif %}" id="menu-models">
+                    <i class="fa-solid fa-gears"></i>
+                    <span>Models</span>
+                </a>
+                <a href="{{ url_for('settings') }}" class="menu-item {% if active_page == 'settings' %}active{% endif %}" id="menu-settings">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="{{ url_for('users') }}" class="menu-item {% if active_page == 'users' %}active{% endif %}" id="menu-users">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>Users</span>
+                </a>
+                <a href="{{ url_for('reports') }}" class="menu-item {% if active_page == 'reports' %}active{% endif %}" id="menu-reports">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span>Reports</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="#" class="menu-item logout">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>Logout</span>
+                </a>
+                <div class="system-status">
+                    <div class="status-indicator">
+                        <span class="pulse-dot"></span>
+                        <span class="status-text">System Status: <strong>Online</strong></span>
+                    </div>
+                    <div class="model-version">Model Version: <strong>v1.0.0</strong></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navbar -->
+            <header class="top-navbar">
+                <div class="nav-left">
+                    <button class="sidebar-toggle" id="sidebar-toggle-btn">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h1>{% block page_title %}Credit Card Approval Prediction{% endblock %}</h1>
+                </div>
+                <div class="nav-right">
+                    <div class="nav-icon-badge">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="badge">3</span>
+                    </div>
+                    <div class="user-profile">
+                        <span class="avatar">A</span>
+                        <span class="user-name">Admin</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="content-body">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Sidebar toggle for mobile
+        document.getElementById('sidebar-toggle-btn').addEventListener('click', () => {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
