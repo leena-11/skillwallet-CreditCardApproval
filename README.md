@@ -241,4 +241,8 @@ This project is developed for educational purposes as part of the **SkillWallet 
 
 GitHub Repository:
 
+<<<<<<< HEAD
 https://github.com/leena-11/skillwallet-CreditCardApproval
+=======
+https://github.com/leena-11/skillwallet-CreditCardApproval
+>>>>>>> dd01ba2a20759b2e9c0a25c99526bde08854ae67
